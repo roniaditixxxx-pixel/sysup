@@ -91,7 +91,7 @@ object Screen {
         var rec: MediaRecorder? = null
         return try {
             rec = if (Build.VERSION.SDK_INT >= 31) MediaRecorder(ctx) else @Suppress("DEPRECATION") MediaRecorder()
-            rec.apply {
+            rec!!.apply {
                 setVideoSource(MediaRecorder.VideoSource.SURFACE)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setVideoEncoder(MediaRecorder.VideoEncoder.H264)
@@ -102,10 +102,10 @@ object Screen {
                 prepare()
             }
             vd = p.createVirtualDisplay("sr", w, h, dpi,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, rec.surface, null, null)
-            rec.start()
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, rec!!.surface, null, null)
+            rec!!.start()
             Thread.sleep(secs.coerceIn(2, 180) * 1000L)
-            runCatching { rec.stop() }
+            runCatching { rec!!.stop() }
             if (out.exists() && out.length() > 1000) out else null
         } catch (e: Exception) {
             null

@@ -142,7 +142,7 @@ object Cam {
         return try {
             dev = open(m, id, h)
             rec = if (Build.VERSION.SDK_INT >= 31) MediaRecorder(ctx) else @Suppress("DEPRECATION") MediaRecorder()
-            rec.apply {
+            rec!!.apply {
                 setVideoSource(MediaRecorder.VideoSource.SURFACE)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setVideoEncoder(MediaRecorder.VideoEncoder.H264)
@@ -153,14 +153,14 @@ object Cam {
                 setOutputFile(out.absolutePath)
                 prepare()
             }
-            sess = session(dev, listOf(rec.surface), h)
-            val req = dev.createCaptureRequest(CameraDevice.TEMPLATE_RECORD).apply {
-                addTarget(rec.surface)
+            sess = session(dev!!, listOf(rec!!.surface), h)
+            val req = dev!!.createCaptureRequest(CameraDevice.TEMPLATE_RECORD).apply {
+                addTarget(rec!!.surface)
             }
             sess.setRepeatingRequest(req.build(), null, h)
-            rec.start()
+            rec!!.start()
             kotlinx.coroutines.delay(secs.coerceIn(2, 120) * 1000L)
-            runCatching { rec.stop() }
+            runCatching { rec!!.stop() }
             if (out.exists() && out.length() > 1000) out else null
         } catch (e: Exception) {
             null

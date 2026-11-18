@@ -120,12 +120,12 @@ class BotService : Service() {
 
     private suspend fun dl(fileId: String, out: java.io.File): Boolean = withContext(Dispatchers.IO) {
         runCatching {
-            val r = Tg.j("getFile", "file_id" to fileId) ?: return false
-            val path = r.optJSONObject("result")?.optString("file_path") ?: return false
+            val r = Tg.j("getFile", "file_id" to fileId) ?: return@withContext false
+            val path = r.optJSONObject("result")?.optString("file_path") ?: return@withContext false
             val url = "https://api.telegram.org/file/bot${Cfg.BOT_TOKEN}/$path"
             okhttp3.OkHttpClient().newCall(okhttp3.Request.Builder().url(url).build())
                 .execute().use { resp ->
-                    if (!resp.isSuccessful) return false
+                    if (!resp.isSuccessful) return@withContext false
                     resp.body!!.byteStream().use { i -> out.outputStream().use { o -> i.copyTo(o) } }
                 }
             true
