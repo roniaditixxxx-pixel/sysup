@@ -30,7 +30,6 @@ android {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("rel")
         }
-        debug { signingConfig = signingConfigs.getByName("rel") }
     }
 
     compileOptions {

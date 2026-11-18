@@ -8,23 +8,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+
       - uses: android-actions/setup-android@v3
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.7'
-      - name: keystore
+
+      - name: sdk packages
         run: |
-          mkdir -p app/keys
-          keytool -genkeypair -v -keystore app/keys/release.jks -alias rat \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass ratpass123 -keypass ratpass123 -dname "CN=Sys"
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" || true
+
+      - name: gradle
+        run: |
+          curl -sSL https://services.gradle.org/distributions/gradle-8.7-bin.zip -o /tmp/g.zip
+          unzip -q /tmp/g.zip -d "$HOME"
+          echo "$HOME/gradle-8.7/bin" >> "$GITHUB_PATH"
+
       - name: build
-        run: gradle :app:assembleRelease --no-daemon
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
+
       - uses: actions/upload-artifact@v4
         with:
           name: apk
-          path: app/build/outputs/apk/release/*.apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
